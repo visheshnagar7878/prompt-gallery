@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vishesh Nagar - AI Prompt Gallery</title>
+    
+    <!-- Google Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+   <nav class="navbar">
+    <div class="nav-left">
+        <img src="photo1.jpg" alt="Profile" class="profile-pic">
+        <span class="nav-name" style="font-family: monospace;">Vishesh Nagar</span>
+    </div>
+    <div class="nav-right">
+        <a href="#home">Home</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#about">About</a>
+        <div class="theme-toggle" id="themeToggle"></div>
+    </div>
+</nav>
+
+
+    <!-- Home Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h1 class="hero-title">AI Image Creator</h1>
+            <p class="hero-subtitle">Exploring the boundaries of creativity with Gemini AI</p>
+            <div class="hero-buttons">
+                <a href="#gallery" class="btn-primary">View Gallery</a>
+                <a href="#about" class="btn-secondary">Learn More</a>
+            </div>
+        </div>
+        <div class="hero-background">
+            <div class="floating-card card-1"></div>
+            <div class="floating-card card-2"></div>
+            <div class="floating-card card-3"></div>
+            <div class="floating-card card-4"></div>
+            <div class="floating-card card-5"></div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="section">
+        <div class="section-header">
+            <h2 class="section-title">Image Gallery</h2>
+            <p class="section-subtitle">Discover AI-generated masterpieces with their prompts</p>
+        </div>
+        
+        <!-- Gallery auto-generates here from Firebase -->
+        <div class="gallery" id="galleryContainer">
+            <!-- Loading indicator -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <p>Loading gallery...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="section about-section">
+        <div class="section-header">
+            <h2 class="section-title">About Me</h2>
+            <p class="section-subtitle">Passionate about AI and creative design</p>
+        </div>
+        
+        <div class="about-content">
+            <div class="about-card">
+                <div class="card-icon">🎨</div>
+                <h3>Creative Vision</h3>
+                <p>Crafting unique visual experiences through AI-powered image generation</p>
+            </div>
+            
+            <div class="about-card">
+                <div class="card-icon">🤖</div>
+                <h3>AI Technology</h3>
+                <p>Leveraging Gemini AI to push the boundaries of digital art</p>
+            </div>
+            
+            <div class="about-card">
+                <div class="card-icon">📸</div>
+                <h3>Portfolio</h3>
+                <p>Building a diverse collection of AI-generated artwork and prompts</p>
+            </div>
+        </div>
+
+        <div class="about-profile">
+            <div class="profile-image">
+                <img src="photo1.jpg" alt="Vishesh Nagar">
+            </div>
+            <div class="profile-text">
+                <h3>Vishesh Nagar</h3>
+                <p>AI enthusiast and creative developer specializing in AI-generated content. I share my journey exploring the intersection of technology and art through Instagram, showcasing unique prompts and stunning visuals created with Gemini AI.</p>
+                <div class="profile-stats">
+                    <div class="stat">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">AI Images</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Unique Prompts</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-number">1K+</span>
+                        <span class="stat-label">Followers</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" src="" alt="AI Generated Image">
+            <div class="prompt-display" id="modalPrompt"></div>
+        </div>
+        <div class="modal-nav">
+            <button class="nav-btn" onclick="changeImage(-1)">‹</button>
+            <button class="nav-btn" onclick="changeImage(1)">›</button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>AI-generated images with Gemini</p>
+            <div class="social-links">
+                <a href="https://www.instagram.com/filtered_vish/" target="_blank">😎Instagram</a>
+                <a href="https://github.com/visheshnagar7878" target="_blank">🥷GitHub</a>
+                <a href="mailto:your-visheshnagar893@gmail.com">Email</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Vishesh Nagar. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Firebase Module Script - IMPORTANT: type="module" is required -->
+    <script type="module" src="script.js"></script>
+</body>
+</html>
