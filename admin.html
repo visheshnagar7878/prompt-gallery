@@ -1,253 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Vishesh Nagar</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700">
+    <title>Admin Dashboard - Vishesh Nagar</title>
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap"
+        rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            600: '#4f46e5', // Indigo-600
+                            500: '#6366f1',
+                        },
+                        slate: {
+                            850: '#151b2e',
+                            900: '#0f172a',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            background: white;
-            padding: 40px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        h1 {
-            text-align: center;
-            color: #667eea;
-            margin-bottom: 30px;
-            font-size: 2rem;
-        }
-
-        .login-section, .upload-section {
-            display: none;
-        }
-
-        .login-section.active, .upload-section.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        input[type="email"],
-        input[type="password"],
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: 'Inter', sans-serif;
-            transition: border-color 0.3s ease;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-        }
-
-        button {
-            width: 100%;
-            padding: 14px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-        }
-
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .cloudinary-btn {
-            background: #3448c5;
-            margin-bottom: 20px;
-        }
-
-        .cloudinary-btn:hover {
-            background: #2435a6;
-        }
-
-        .preview {
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .preview img {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-
-        .success-msg, .error-msg {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            display: none;
-            animation: slideDown 0.3s ease;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .success-msg {
-            background: #4caf50;
-            color: white;
-        }
-
-        .error-msg {
-            background: #f44336;
-            color: white;
-        }
-
-        .success-msg.show, .error-msg.show {
-            display: block;
-        }
-
-        .logout-btn {
-            background: #f44336;
-            margin-top: 20px;
-        }
-
-        .logout-btn:hover {
-            background: #d32f2f;
-        }
-
-        .back-link {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .back-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .back-link a:hover {
-            color: #5568d3;
-        }
-
-        .image-url {
-            font-size: 12px;
-            color: #666;
-            word-break: break-all;
-            margin-top: 10px;
-            padding: 10px;
-            background: #f5f5f5;
-            border-radius: 6px;
-        }
-
-        .loading {
-            text-align: center;
-            color: #667eea;
-            padding: 20px;
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🔐 Admin Panel</h1>
 
-        <!-- Login Section -->
-        <div class="login-section active" id="loginSection">
-            <div class="error-msg" id="loginError"></div>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>Admin Email</label>
-                    <input type="email" id="adminEmail" placeholder="your-email@example.com" required>
+<body class="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Grid BG -->
+    <div
+        class="fixed inset-0 -z-10 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]">
+    </div>
+    <div class="fixed inset-0 -z-10 bg-[radial-gradient(circle_at_center,rgba(79,70,229,0.1),rgba(0,0,0,0))]"></div>
+
+    <div class="w-full max-w-lg">
+        <!-- Main Card -->
+        <div class="glass-panel rounded-2xl shadow-2xl p-8 md:p-10 relative overflow-hidden">
+
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div
+                    class="h-12 w-12 bg-brand-600 rounded-xl flex items-center justify-center text-white text-xl font-bold mx-auto mb-4 shadow-lg shadow-brand-500/30">
+                    V
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="adminPassword" placeholder="Enter your password" required>
-                </div>
-                <button type="submit">Login</button>
-            </form>
-            <div class="back-link">
-                <a href="index.html">← Back to Gallery</a>
+                <h1 class="font-display text-2xl font-bold text-white mb-2">Admin Dashboard</h1>
+                <p class="text-slate-400 text-sm">Access your AI Gallery controls</p>
             </div>
+
+            <!-- Login Section -->
+            <div id="loginSection" class="active">
+                <!-- Error Message -->
+                <div id="loginError"
+                    class="hidden mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center">
+                </div>
+
+                <form id="loginForm" class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Email
+                            Address</label>
+                        <input type="email" id="adminEmail"
+                            class="w-full px-4 py-3 rounded-lg bg-slate-900/50 border border-white/10 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
+                            placeholder="name@example.com" required>
+                    </div>
+                    <div>
+                        <label
+                            class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Password</label>
+                        <input type="password" id="adminPassword"
+                            class="w-full px-4 py-3 rounded-lg bg-slate-900/50 border border-white/10 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all"
+                            placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full py-3.5 px-6 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold shadow-lg shadow-brand-600/25 transition-all">
+                        Sign In
+                    </button>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-white transition-colors">
+                        ← Return to Gallery
+                    </a>
+                </div>
+            </div>
+
+            <!-- Upload Section -->
+            <div id="uploadSection" class="hidden">
+                <!-- Messages -->
+                <div id="successMsg"
+                    class="hidden mb-6 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-sm text-center font-medium">
+                </div>
+                <div id="uploadError"
+                    class="hidden mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-medium">
+                </div>
+
+                <form id="uploadForm" class="space-y-6">
+                    <!-- Upload Button -->
+                    <button type="button" id="uploadWidget"
+                        class="w-full py-6 px-6 border border-dashed border-white/10 rounded-xl bg-white/5 hover:bg-white/10 hover:border-brand-500/50 transition-all group flex flex-col items-center gap-3 cursor-pointer">
+                        <div
+                            class="h-10 w-10 rounded-full bg-slate-800 flex items-center justify-center text-xl group-hover:scale-110 transition-transform">
+                            📤</div>
+                        <span class="font-medium text-slate-300 group-hover:text-white">Upload Image</span>
+                    </button>
+
+                    <!-- Preview Area -->
+                    <div id="preview" class="empty:hidden rounded-lg overflow-hidden border border-white/10"></div>
+                    <div id="imageUrl"
+                        class="hidden text-xs text-slate-500 bg-slate-900 p-3 rounded-lg break-all border border-white/5">
+                    </div>
+
+                    <!-- Prompt Field -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Prompt
+                            Details</label>
+                        <textarea id="promptText" rows="4"
+                            class="w-full px-4 py-3 rounded-lg bg-slate-900/50 border border-white/10 text-white placeholder-slate-500 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition-all resize-y min-h-[100px]"
+                            placeholder="Enter the generation prompt..." required></textarea>
+                    </div>
+
+                    <!-- Actions -->
+                    <button type="submit" id="saveBtn" disabled
+                        class="w-full py-3.5 px-6 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold transition-all shadow-lg shadow-brand-600/25 disabled:opacity-50 disabled:cursor-not-allowed">
+                        Save to Gallery
+                    </button>
+
+                    <button type="button" onclick="logout()"
+                        class="w-full py-3 px-6 rounded-lg bg-slate-800 text-slate-400 hover:text-white font-medium hover:bg-slate-700 transition-colors">
+                        Sign Out
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <a href="index.html" class="text-sm font-medium text-slate-500 hover:text-white transition-colors">
+                        ← Return to Gallery
+                    </a>
+                </div>
+            </div>
+
         </div>
 
-        <!-- Upload Section -->
-        <div class="upload-section" id="uploadSection">
-            <div class="success-msg" id="successMsg"></div>
-            <div class="error-msg" id="uploadError"></div>
-            
-            <form id="uploadForm">
-                <button type="button" class="cloudinary-btn" id="uploadWidget">
-                    📤 Select Image from Computer
-                </button>
-
-                <div class="preview" id="preview"></div>
-                <div class="image-url" id="imageUrl" style="display: none;"></div>
-
-                <div class="form-group">
-                    <label>Gemini Prompt</label>
-                    <textarea id="promptText" placeholder="Enter the prompt you used to generate this image with Gemini AI..." required></textarea>
-                </div>
-
-                <button type="submit" id="saveBtn" disabled>💾 Save to Gallery</button>
-                <button type="button" class="logout-btn" onclick="logout()">Logout</button>
-            </form>
-
-            <div class="back-link">
-                <a href="index.html">← Back to Gallery</a>
-            </div>
-        </div>
+        <p class="text-center text-slate-600 text-xs mt-6">
+            &copy; 2025 Vishesh Nagar. All rights reserved.
+        </p>
     </div>
 
     <!-- Cloudinary Upload Widget -->
@@ -260,37 +170,45 @@
         import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
-        apiKey: "AIzaSyBeJAFrLVOPXvRVh3uHdwUtayktoY4tZIQ",
-        authDomain: "prompt-gallery-5ee9e.firebaseapp.com",
-        projectId: "prompt-gallery-5ee9e",
-        storageBucket: "prompt-gallery-5ee9e.firebasestorage.app",
-        messagingSenderId: "201682624108",
-        appId: "1:201682624108:web:513ebfb5c317e939c48249",
-        measurementId: "G-RRWMXCENPJ"
-    };
-
-
+            apiKey: "AIzaSyBeJAFrLVOPXvRVh3uHdwUtayktoY4tZIQ",
+            authDomain: "prompt-gallery-5ee9e.firebaseapp.com",
+            projectId: "prompt-gallery-5ee9e",
+            storageBucket: "prompt-gallery-5ee9e.firebasestorage.app",
+            messagingSenderId: "201682624108",
+            appId: "1:201682624108:web:513ebfb5c317e939c48249",
+            measurementId: "G-RRWMXCENPJ"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        
-        const CLOUDINARY_CLOUD_NAME = 'dbptivarx';  // Your cloud name
-        const CLOUDINARY_UPLOAD_PRESET = 'prompt_gallery';  // Your upload preset
+        const CLOUDINARY_CLOUD_NAME = 'dbptivarx';
+        const CLOUDINARY_UPLOAD_PRESET = 'prompt_gallery';
 
         let uploadedImageUrl = '';
 
         // Check authentication state
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('loginSection').classList.remove('active');
-                document.getElementById('uploadSection').classList.add('active');
+                toggleSections('upload');
             } else {
-                document.getElementById('loginSection').classList.add('active');
-                document.getElementById('uploadSection').classList.remove('active');
+                toggleSections('login');
             }
         });
+
+        function toggleSections(section) {
+            const loginSection = document.getElementById('loginSection');
+            const uploadSection = document.getElementById('uploadSection');
+
+            if (section === 'upload') {
+                loginSection.classList.add('hidden');
+                uploadSection.classList.remove('hidden');
+            } else {
+                loginSection.classList.remove('hidden');
+                uploadSection.classList.add('hidden');
+            }
+        }
 
         // Handle login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -301,41 +219,39 @@
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                showError('loginError', 'Invalid email or password. Please try again.');
+                showError('loginError', 'Invalid credentials.');
                 console.error('Login error:', error);
             }
         });
 
-        // Initialize Cloudinary Upload Widget
+        // Initialize Cloudinary
         const myWidget = cloudinary.createUploadWidget({
             cloudName: CLOUDINARY_CLOUD_NAME,
             uploadPreset: CLOUDINARY_UPLOAD_PRESET,
-            sources: ['local', 'url', 'camera'],
+            sources: ['local', 'url'],
             multiple: false,
-            maxImageFileSize: 10000000, // 10MB
-            clientAllowedFormats: ['jpg', 'png', 'jpeg', 'webp', 'gif'],
-            folder: 'gallery',
-            cropping: false
+            maxImageFileSize: 10000000,
+            clientAllowedFormats: ['jpg', 'png', 'webp'],
+            folder: 'gallery'
         }, (error, result) => {
             if (!error && result && result.event === "success") {
                 uploadedImageUrl = result.info.secure_url;
-                
-                // Show preview
-                document.getElementById('preview').innerHTML = 
-                    `<img src="${uploadedImageUrl}" alt="Uploaded Image">`;
-                document.getElementById('imageUrl').style.display = 'block';
-                document.getElementById('imageUrl').textContent = 
-                    `✅ Image uploaded successfully: ${uploadedImageUrl}`;
-                
-                // Enable save button
-                document.getElementById('saveBtn').disabled = false;
+
+                document.getElementById('preview').innerHTML =
+                    `<img src="${uploadedImageUrl}" alt="Uploaded" class="w-full h-auto object-cover">`;
+
+                const urlDiv = document.getElementById('imageUrl');
+                urlDiv.classList.remove('hidden');
+                urlDiv.textContent = `Image ready`;
+
+                const saveBtn = document.getElementById('saveBtn');
+                saveBtn.disabled = false;
             }
             if (error) {
-                showError('uploadError', 'Upload failed: ' + error.message);
+                showError('uploadError', 'Upload failed');
             }
         });
 
-        // Open Cloudinary widget
         document.getElementById('uploadWidget').addEventListener('click', () => {
             myWidget.open();
         });
@@ -343,73 +259,60 @@
         // Save to Firestore
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const prompt = document.getElementById('promptText').value.trim();
             const saveBtn = document.getElementById('saveBtn');
 
-            if (!uploadedImageUrl) {
-                showError('uploadError', 'Please upload an image first');
-                return;
-            }
-
-            if (!prompt) {
-                showError('uploadError', 'Please enter a prompt');
+            if (!uploadedImageUrl || !prompt) {
+                showError('uploadError', 'Image and prompt required');
                 return;
             }
 
             saveBtn.disabled = true;
-            saveBtn.textContent = '⏳ Saving...';
+            saveBtn.textContent = 'Saving...';
 
             try {
-                // Save to Firestore
                 await addDoc(collection(db, 'gallery'), {
                     imageUrl: uploadedImageUrl,
                     prompt: prompt,
                     timestamp: serverTimestamp()
                 });
 
-                showSuccess('✅ Image added to gallery successfully!');
-                
-                // Reset form
+                showSuccess('Published to Gallery');
+
+                // Reset
                 document.getElementById('promptText').value = '';
                 document.getElementById('preview').innerHTML = '';
-                document.getElementById('imageUrl').style.display = 'none';
-                document.getElementById('imageUrl').textContent = '';
+                document.getElementById('imageUrl').classList.add('hidden');
                 uploadedImageUrl = '';
-                saveBtn.disabled = true;
-                saveBtn.textContent = '💾 Save to Gallery';
+                saveBtn.textContent = 'Save to Gallery';
 
             } catch (error) {
-                showError('uploadError', 'Error saving: ' + error.message);
-                console.error('Save error:', error);
+                showError('uploadError', 'Error saving');
+                console.error(error);
                 saveBtn.disabled = false;
-                saveBtn.textContent = '💾 Save to Gallery';
+                saveBtn.textContent = 'Save to Gallery';
             }
         });
 
-        // Logout function
         window.logout = async () => {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error('Logout error:', error);
-            }
+            try { await signOut(auth); } catch (e) { console.error(e); }
         };
 
-        // Helper functions
         function showSuccess(message) {
             const successMsg = document.getElementById('successMsg');
             successMsg.textContent = message;
-            successMsg.classList.add('show');
-            setTimeout(() => successMsg.classList.remove('show'), 5000);
+            successMsg.classList.remove('hidden');
+            setTimeout(() => successMsg.classList.add('hidden'), 5000);
         }
 
         function showError(elementId, message) {
             const errorMsg = document.getElementById(elementId);
             errorMsg.textContent = message;
-            errorMsg.classList.add('show');
-            setTimeout(() => errorMsg.classList.remove('show'), 5000);
+            errorMsg.classList.remove('hidden');
+            setTimeout(() => errorMsg.classList.add('hidden'), 5000);
         }
     </script>
 </body>
+
 </html>

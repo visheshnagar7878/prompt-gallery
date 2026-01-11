@@ -2,17 +2,17 @@
 // FIREBASE CONFIGURATION & IMPORTS
 // ========================================
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getFirestore, collection, getDocs, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { getFirestore, collection, query, orderBy, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
 // Firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyBeJAFrLVOPXvRVh3uHdwUtayktoY4tZIQ",
-  authDomain: "prompt-gallery-5ee9e.firebaseapp.com",
-  projectId: "prompt-gallery-5ee9e",
-  storageBucket: "prompt-gallery-5ee9e.firebasestorage.app",
-  messagingSenderId: "201682624108",
-  appId: "1:201682624108:web:513ebfb5c317e939c48249",
-  measurementId: "G-RRWMXCENPJ"
+    apiKey: "AIzaSyBeJAFrLVOPXvRVh3uHdwUtayktoY4tZIQ",
+    authDomain: "prompt-gallery-5ee9e.firebaseapp.com",
+    projectId: "prompt-gallery-5ee9e",
+    storageBucket: "prompt-gallery-5ee9e.firebasestorage.app",
+    messagingSenderId: "201682624108",
+    appId: "1:201682624108:web:513ebfb5c317e939c48249",
+    measurementId: "G-RRWMXCENPJ"
 };
 
 // Initialize Firebase
@@ -26,26 +26,88 @@ let images = [];
 let currentIndex = 0;
 
 // ========================================
-// LOAD IMAGES FROM FIREBASE (WITH REAL-TIME UPDATES)
+// UI HELPERS (TOAST, ETC)
+// ========================================
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toastMessage');
+
+    if (!toast || !toastMessage) return;
+
+    toastMessage.textContent = message;
+
+    // Reset status
+    toast.className = 'fixed bottom-8 left-8 transform translate-y-0 opacity-100 transition-all duration-300 z-50 bg-white dark:bg-slate-800 text-slate-900 dark:text-white px-5 py-3 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 flex items-center gap-3';
+
+    if (type === 'error') {
+        toast.classList.add('border-red-500');
+    }
+
+    // Hide after 3s
+    setTimeout(() => {
+        toast.className = 'fixed bottom-8 left-8 transform translate-y-20 opacity-0 transition-all duration-300 z-50';
+    }, 3000);
+}
+
+window.copyPrompt = async function () {
+    const promptText = document.getElementById('modalPrompt').textContent;
+    if (!promptText) return;
+
+    try {
+        await navigator.clipboard.writeText(promptText);
+
+        const loadText = document.getElementById('copyText');
+        const loadIcon = document.getElementById('copyIcon');
+        const originalText = loadText.textContent;
+
+        loadText.textContent = 'Copied!';
+        loadIcon.textContent = '✓';
+        loadIcon.classList.add('text-green-400');
+
+        showToast('Prompt copied to clipboard!');
+
+        setTimeout(() => {
+            loadText.textContent = originalText;
+            loadIcon.textContent = '📋';
+            loadIcon.classList.remove('text-green-400');
+        }, 2000);
+
+    } catch (err) {
+        console.error('Failed to copy text: ', err);
+        showToast('Failed to copy prompt', 'error');
+    }
+};
+
+// ========================================
+// SKELETON LOADER
+// ========================================
+function showSkeletonLoader() {
+    const galleryContainer = document.getElementById('galleryContainer');
+    if (!galleryContainer) return;
+
+    galleryContainer.innerHTML = '';
+
+    // Create 8 skeleton boxes
+    for (let i = 0; i < 8; i++) {
+        const skeleton = document.createElement('div');
+        skeleton.className = 'w-full h-[400px] rounded-xl skeleton border border-white/5';
+        galleryContainer.appendChild(skeleton);
+    }
+}
+
+// ========================================
+// LOAD IMAGES
 // ========================================
 function loadImagesFromFirebase() {
     const galleryContainer = document.getElementById('galleryContainer');
-    
-    if (!galleryContainer) {
-        console.error('Gallery container not found');
-        return;
-    }
-    
-    // Show loading message
-    galleryContainer.innerHTML = '<div class="loading-spinner"><p>Loading gallery...</p></div>';
-    
-    // Setup real-time listener for gallery collection
+    if (!galleryContainer) return;
+
+    showSkeletonLoader();
+
     const q = query(collection(db, 'gallery'), orderBy('timestamp', 'desc'));
-    
-    // onSnapshot listens for real-time updates
+
     onSnapshot(q, (querySnapshot) => {
         images = [];
-        
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             images.push({
@@ -54,14 +116,15 @@ function loadImagesFromFirebase() {
                 id: doc.id
             });
         });
-        
-        // Generate gallery with new data
         generateGallery();
     }, (error) => {
-        console.error('Error loading images:', error);
-        if (galleryContainer) {
-            galleryContainer.innerHTML = '<p style="text-align: center; width: 100%; padding: 40px; color: red;">Error loading gallery. Please refresh.</p>';
-        }
+        console.error('Error:', error);
+        galleryContainer.innerHTML = `
+            <div class="col-span-full text-center py-20 text-red-400">
+                <h3 class="text-xl font-bold mb-2">Unable to load gallery</h3>
+                <p class="text-sm">Please check your internet connection.</p>
+            </div>
+        `;
     });
 }
 
@@ -70,219 +133,156 @@ function loadImagesFromFirebase() {
 // ========================================
 function generateGallery() {
     const galleryContainer = document.getElementById('galleryContainer');
-    
     if (!galleryContainer) return;
-    
-    // Clear existing content
+
     galleryContainer.innerHTML = '';
-    
-    // Show message if no images
+
     if (images.length === 0) {
-        galleryContainer.innerHTML = '<p style="text-align: center; width: 100%; padding: 40px; color: #666;">No images yet. Upload from admin panel!</p>';
-        return;
-    }
-    
-    // Create gallery boxes
-    images.forEach((item, index) => {
-        const box = document.createElement('div');
-        box.className = 'box';
-        box.style.animationDelay = `${index * 0.1}s`;
-        box.onclick = () => openModal(index);
-        
-        box.innerHTML = `
-            <div class="image">
-                <img src="${item.src}" alt="AI Generated Image" loading="lazy">
-            </div>
-            <div class="image-overlay">
-                <span>View Details</span>
+        galleryContainer.innerHTML = `
+            <div class="col-span-full text-center py-20 text-slate-500">
+                <p class="text-lg">No images yet. Upload from admin panel!</p>
             </div>
         `;
-        
+        return;
+    }
+
+    images.forEach((item, index) => {
+        const box = document.createElement('div');
+        // Professional Card Style
+        box.className = 'group relative rounded-xl overflow-hidden cursor-pointer bg-slate-800 border border-white/5 shadow-md card-hover opacity-0 translate-y-8 animate-slide-up';
+        box.style.animationFillMode = 'forwards';
+        box.style.animationDelay = `${index * 0.1}s`;
+        box.onclick = () => openModal(index);
+
+        box.innerHTML = `
+            <div class="w-full h-[400px] overflow-hidden bg-slate-900">
+                <img src="${item.src}" alt="AI Art" loading="lazy" class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105">
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-5">
+                <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                    <span class="inline-block px-3 py-1 bg-brand-600 text-white text-xs font-semibold rounded-full mb-2">View Prompt</span>
+                </div>
+            </div>
+        `;
+
         galleryContainer.appendChild(box);
     });
-    
-    // Re-apply scroll animations to new boxes
-    setTimeout(() => {
-        document.querySelectorAll('.box').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'all 0.6s ease';
-            if (window.observer) window.observer.observe(el);
-        });
-    }, 100);
 }
 
 // ========================================
-// MODAL FUNCTIONS
+// MODAL LOGIC
 // ========================================
 function openModal(index) {
     currentIndex = index;
     const modal = document.getElementById('imageModal');
     const modalImg = document.getElementById('modalImage');
     const modalPrompt = document.getElementById('modalPrompt');
-    
-    if (!modal || !modalImg || !modalPrompt) {
-        console.error('Modal elements not found');
-        return;
-    }
-    
-    modal.classList.add('active');
+
+    if (!modal || !modalImg) return;
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+
     modalImg.src = images[index].src;
     modalPrompt.textContent = images[index].prompt;
-    
+
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
     const modal = document.getElementById('imageModal');
     if (!modal) return;
-    
-    modal.classList.remove('active');
+
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
     document.body.style.overflow = 'auto';
 }
 
 function changeImage(direction) {
     if (images.length === 0) return;
-    
+
     currentIndex += direction;
-    
-    if (currentIndex >= images.length) {
-        currentIndex = 0;
-    } else if (currentIndex < 0) {
-        currentIndex = images.length - 1;
-    }
-    
+    if (currentIndex >= images.length) currentIndex = 0;
+    else if (currentIndex < 0) currentIndex = images.length - 1;
+
     const modalImg = document.getElementById('modalImage');
     const modalPrompt = document.getElementById('modalPrompt');
-    
-    if (!modalImg || !modalPrompt) return;
-    
-    modalImg.style.animation = 'none';
-    modalPrompt.style.animation = 'none';
-    
+
+    // Quick fade out/in
+    modalImg.style.opacity = '0.7';
+
     setTimeout(() => {
         modalImg.src = images[currentIndex].src;
         modalPrompt.textContent = images[currentIndex].prompt;
-        modalImg.style.animation = 'slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        modalPrompt.style.animation = 'fadeInUp 0.5s ease 0.2s both';
-    }, 50);
+        modalImg.style.opacity = '1';
+    }, 150);
 }
 
-// Make functions globally available for onclick handlers
 window.openModal = openModal;
 window.closeModal = closeModal;
 window.changeImage = changeImage;
 
 // ========================================
-// EVENT LISTENERS
+// INIT & EVENTS
 // ========================================
-
-// Load gallery when page loads
-window.addEventListener('DOMContentLoaded', function() {
+window.addEventListener('DOMContentLoaded', () => {
     loadImagesFromFirebase();
 });
 
-// Keyboard navigation
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', (e) => {
     const modal = document.getElementById('imageModal');
-    if (modal && modal.classList.contains('active')) {
+    if (modal && !modal.classList.contains('hidden')) {
         if (e.key === 'ArrowRight') changeImage(1);
         if (e.key === 'ArrowLeft') changeImage(-1);
         if (e.key === 'Escape') closeModal();
     }
 });
 
-// Mouse wheel in modal
-const modalElement = document.getElementById('imageModal');
-if (modalElement) {
-    modalElement.addEventListener('wheel', function(e) {
-        e.preventDefault();
-        if (e.deltaY > 0) {
-            changeImage(1);
-        } else {
-            changeImage(-1);
-        }
-    }, { passive: false });
-
-    // Close on outside click
-    modalElement.addEventListener('click', function(e) {
-        if (e.target === this) {
-            closeModal();
-        }
-    });
-}
-
-// ========================================
-// SCROLL ANIMATIONS
-// ========================================
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Store observer globally
-window.observer = observer;
-
-// Observe about section elements
-document.querySelectorAll('.about-card, .about-profile').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'all 0.6s ease';
-    observer.observe(el);
+// Scroll to Top
+const scrollTopBtn = document.getElementById('scrollTopBtn');
+window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+        scrollTopBtn.classList.remove('translate-y-20', 'opacity-0');
+    } else {
+        scrollTopBtn.classList.add('translate-y-20', 'opacity-0');
+    }
+});
+scrollTopBtn?.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// ========================================
-// SMOOTH SCROLL
-// ========================================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const offset = 60;
-            const targetPosition = target.offsetTop - offset;
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-// ========================================
-// THEME TOGGLE FUNCTIONALITY
-// ========================================
-
+// Theme Toggle
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
+const navbar = document.getElementById('navbar');
 
-// Check for saved theme preference or default to dark
-const currentTheme = localStorage.getItem('theme') || 'dark';
-if (currentTheme === 'light') {
-    body.classList.add('light-mode');
+// Apply saved theme
+if (localStorage.getItem('theme') === 'light') {
+    enableLightMode();
 }
 
-// Toggle theme
-if (themeToggle) {
-    themeToggle.addEventListener('click', () => {
-        body.classList.toggle('light-mode');
-        
-        // Save preference
-        const theme = body.classList.contains('light-mode') ? 'light' : 'dark';
-        localStorage.setItem('theme', theme);
-        
-        // Add animation
-        themeToggle.style.transform = 'rotate(360deg)';
-        setTimeout(() => {
-            themeToggle.style.transform = 'rotate(0deg)';
-        }, 300);
-    });
+function enableLightMode() {
+    body.classList.add('light');
+    body.classList.replace('bg-slate-950', 'bg-slate-50');
+    body.classList.replace('text-slate-200', 'text-slate-900');
+
+
 }
+
+function enableDarkMode() {
+    body.classList.remove('light');
+    body.classList.replace('bg-slate-50', 'bg-slate-950');
+    body.classList.replace('text-slate-900', 'text-slate-200');
+
+
+}
+
+themeToggle?.addEventListener('click', () => {
+    if (body.classList.contains('light')) {
+        enableDarkMode();
+        localStorage.setItem('theme', 'dark');
+    } else {
+        enableLightMode();
+        localStorage.setItem('theme', 'light');
+    }
+});
